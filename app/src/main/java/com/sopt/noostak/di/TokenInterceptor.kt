@@ -103,7 +103,7 @@ class TokenInterceptor @Inject constructor(
         ).build()
 
     companion object {
-        const val SUCCESS = 200
+        const val SUCCESS = 201
         const val CODE_TOKEN_EXPIRE = 401
         const val AUTHORIZATION = "Authorization"
         const val BEARER = "Bearer "
