@@ -51,18 +51,18 @@ class TokenInterceptor @Inject constructor(
             val refreshToken = preferenceDatasource.refreshToken.first()
 
             return try {
-                val tokenResult = runBlocking(Dispatchers.IO) {
+                val tokenResult = withContext(Dispatchers.IO) {
                     authService.postReissueToken(refreshToken)
                 }
-                when (tokenResult.status == SUCCESS) {
-                    true -> {
-                        preferenceDatasource.updateAccessToken(
-                            BEARER + tokenResult.result?.accessToken
-                        )
-                        true
-                    }
 
-                    false -> false
+                if (tokenResult.status == SUCCESS && tokenResult.result != null) {
+                    tokenResult.result?.let { result ->
+                        preferenceDatasource.updateAccessToken(BEARER + result.accessToken)
+                        preferenceDatasource.updateRefreshToken(BEARER + result.refreshToken)
+                    }
+                    true
+                } else {
+                    false
                 }
             } catch (e: Exception) {
                 false
