@@ -1,6 +1,7 @@
 package com.sopt.presentation.appointmentCreate.appointmentCreateInfo
 
 import com.sopt.core.util.BaseViewModel
+import com.sopt.presentation.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import okhttp3.internal.immutableListOf
 import javax.inject.Inject
@@ -23,6 +24,10 @@ class AppointmentCreateInfoViewModel @Inject constructor() : BaseViewModel<Appoi
     fun navigateUp() {
         emitSideEffect(AppointmentCreateInfoSideEffect.NavigateUp)
     }
+
+    fun showSnackBar() {
+        emitSideEffect(AppointmentCreateInfoSideEffect.ShowSnackBar(R.string.sb_appointment_submit_blank_name))
+    }
 }
 
 sealed class AppointmentCreateInfoSideEffect {
@@ -34,4 +39,5 @@ sealed class AppointmentCreateInfoSideEffect {
     ) : AppointmentCreateInfoSideEffect()
 
     data object NavigateUp : AppointmentCreateInfoSideEffect()
+    data class ShowSnackBar(val message: Int) : AppointmentCreateInfoSideEffect()
 }

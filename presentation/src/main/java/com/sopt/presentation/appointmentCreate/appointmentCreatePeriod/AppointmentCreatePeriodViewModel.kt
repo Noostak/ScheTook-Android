@@ -14,13 +14,13 @@ class AppointmentCreatePeriodViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : BaseViewModel<AppointmentCreatePeriodSideEffect>() {
     val days = immutableListOf(
+        context.stringOf(R.string.text_calendar_appointment_sun),
         context.stringOf(R.string.text_calendar_appointment_mon),
         context.stringOf(R.string.text_calendar_appointment_tues),
         context.stringOf(R.string.text_calendar_appointment_wed),
-        context.stringOf(R.string.text_calendar_appointment_thurs),
+        context.stringOf(R.string.text_calendar_appointment_thu),
         context.stringOf(R.string.text_calendar_appointment_fri),
-        context.stringOf(R.string.text_calendar_appointment_sat),
-        context.stringOf(R.string.text_calendar_appointment_sun)
+        context.stringOf(R.string.text_calendar_appointment_sat)
     )
 
     fun navigateToAppointmentCreateTimePicker(

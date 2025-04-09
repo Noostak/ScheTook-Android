@@ -153,7 +153,7 @@ fun NoostakEditableTimeTable(
 
 @Preview(showBackground = true)
 @Composable
-fun NoostakEditableTimeTable1Preview() {
+fun NoostakEditableTimeTablePreview() {
     NoostakAndroidTheme {
         val mockAvailablePeriods = listOf(
             TimeEntity(

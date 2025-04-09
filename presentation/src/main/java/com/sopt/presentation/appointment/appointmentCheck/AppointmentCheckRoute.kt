@@ -1,6 +1,9 @@
 package com.sopt.presentation.appointment.appointmentCheck
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -12,14 +15,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
@@ -126,49 +129,38 @@ fun AppointmentCheckScreen(
             )
         }
     ) { innerPadding ->
-        ConstraintLayout(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = dimensionResource(id = R.dimen.default_padding))
         ) {
-            val (title, timeTable, button) = createRefs()
-            Text(
+            Column(
                 modifier = Modifier
-                    .padding(top = 11.dp, start = 6.dp, bottom = 16.dp)
-                    .constrainAs(title) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                    },
-                text = stringResource(R.string.title_appointment_check),
-                color = NoostakTheme.colors.black,
-                style = NoostakTheme.typography.h4Bold,
-                textAlign = TextAlign.Start
-            )
-            NoostakEditableTimeTable(
-                availablePeriods = availablePeriods,
-                modifier = Modifier
-                    .constrainAs(timeTable) {
-                        top.linkTo(title.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        height = Dimension.fillToConstraints
-                    }
+                    .fillMaxSize()
+                    .padding(bottom = 80.dp)
             ) {
-                onSelectedDataChange(it)
-                Timber.d("selectedData: $it")
+                Text(
+                    modifier = Modifier
+                        .padding(top = 11.dp, start = 6.dp, bottom = 16.dp),
+                    text = stringResource(R.string.title_appointment_check),
+                    color = NoostakTheme.colors.black,
+                    style = NoostakTheme.typography.h4Bold,
+                    textAlign = TextAlign.Start
+                )
+                NoostakEditableTimeTable(
+                    availablePeriods = availablePeriods,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    onSelectedDataChange(it)
+                    Timber.d("selectedData: $it")
+                }
             }
             NoostakBottomButton(
                 modifier = Modifier
-                    .constrainAs(button) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .padding(
-                        top = 7.dp,
-                        bottom = dimensionResource(id = R.dimen.vertical_padding)
-                    ),
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = dimensionResource(id = R.dimen.vertical_padding))
+                    .zIndex(1f),
                 text = stringResource(R.string.btn_appointment_check),
                 onButtonClick = onConfirmButtonClick,
                 isEnabled = true,
@@ -189,7 +181,7 @@ fun PreviewAppointmentConfirmScreen() {
                 TimeEntity(
                     date = "2024-09-05T10:00:00",
                     startTime = "2024-09-05T10:00:00",
-                    endTime = "2024-09-05T18:00:00"
+                    endTime = "2024-09-05T23:00:00"
                 ),
                 TimeEntity(
                     date = "2024-09-06T10:00:00",

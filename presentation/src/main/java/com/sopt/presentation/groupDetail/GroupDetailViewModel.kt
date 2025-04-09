@@ -74,6 +74,10 @@ class GroupDetailViewModel @Inject constructor(
         emitSideEffect(GroupDetailSideEffect.NavigateUp)
     }
 
+    fun navigateToGroup() {
+        emitSideEffect(GroupDetailSideEffect.NavigateToGroup)
+    }
+
     fun navigateToConfirmedDetail(groupId: Long, confirmedId: Long, appointmentName: String) {
         emitSideEffect(
             GroupDetailSideEffect.NavigateToConfirmedDetail(

@@ -1,5 +1,6 @@
 package com.sopt.presentation.appointmentCreate.appointmentSubmitComplete
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,10 @@ fun AppointmentSubmitCompleteRoute(
     navigateToGroupDetail: (Long) -> Unit,
     appointmentSubmitCompleteViewModel: AppointmentSubmitCompleteViewModel = hiltViewModel()
 ) {
+    BackHandler {
+        appointmentSubmitCompleteViewModel.navigateToGroupDetail(groupId)
+    }
+
     LaunchedEffect(key1 = appointmentSubmitCompleteViewModel.sideEffects) {
         appointmentSubmitCompleteViewModel.sideEffects.collect { sideEffect ->
             when (sideEffect) {

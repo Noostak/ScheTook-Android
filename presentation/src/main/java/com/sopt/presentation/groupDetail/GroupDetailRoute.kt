@@ -1,6 +1,7 @@
 package com.sopt.presentation.groupDetail
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,7 @@ import kotlinx.coroutines.launch
 fun GroupDetailRoute(
     groupId: Long,
     navigateUp: () -> Unit,
+    navigateToGroup: () -> Unit,
     navigateToConfirmedDetail: (Long, Long, String) -> Unit,
     navigateToGroupMember: (Long) -> Unit,
     navigateToAppointment: (Long, Long, String) -> Unit,
@@ -78,6 +80,9 @@ fun GroupDetailRoute(
 ) {
     val groupOngoingState by groupDetailViewModel.groupOngoingState.collectAsState()
     val groupConfirmedState by groupDetailViewModel.groupConfirmedState.collectAsState()
+    BackHandler {
+        groupDetailViewModel.navigateToGroup()
+    }
 
     LaunchedEffect(Unit) {
         groupDetailViewModel.getGroupOngoingAppointments(groupId)
@@ -88,6 +93,7 @@ fun GroupDetailRoute(
         groupDetailViewModel.sideEffects.collect { sideEffect ->
             when (sideEffect) {
                 is GroupDetailSideEffect.NavigateUp -> navigateUp()
+                is GroupDetailSideEffect.NavigateToGroup -> navigateToGroup()
                 is GroupDetailSideEffect.NavigateToConfirmedDetail -> {
                     navigateToConfirmedDetail(
                         sideEffect.groupId,
@@ -349,8 +355,8 @@ fun GroupDetailHeader(
                     .size(40.dp),
                 model = groupImage,
                 contentDescription = null,
-                placeholder = painterResource(id = R.drawable.ic_launcher_background),
-                error = painterResource(id = R.drawable.ic_launcher_background),
+                placeholder = painterResource(id = R.drawable.ic_group_profile),
+                error = painterResource(id = R.drawable.ic_group_profile),
                 contentScale = ContentScale.FillBounds
             )
             Text(

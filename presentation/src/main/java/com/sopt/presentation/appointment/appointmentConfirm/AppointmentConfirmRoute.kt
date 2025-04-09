@@ -1,5 +1,6 @@
 package com.sopt.presentation.appointment.appointmentConfirm
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -184,7 +185,11 @@ fun AppointmentConfirmScreen(
                     .border(
                         width = 1.dp,
                         shape = RoundedCornerShape(20.dp),
-                        color = NoostakTheme.colors.gray200
+                        color = NoostakTheme.colors.blue700
+                    )
+                    .background(
+                        color = NoostakTheme.colors.blue50,
+                        shape = RoundedCornerShape(20.dp)
                     )
                     .padding(dimensionResource(id = R.dimen.default_padding)),
                 verticalArrangement = Arrangement.spacedBy(20.dp)

@@ -9,6 +9,7 @@ import com.sopt.core.navigation.Route
 import com.sopt.presentation.appointment.navigation.navigateAppointment
 import com.sopt.presentation.appointmentCreate.navigation.navigateAppointmentCreateInfo
 import com.sopt.presentation.group.navigation.Group
+import com.sopt.presentation.group.navigation.navigateGroup
 import com.sopt.presentation.groupDetail.GroupDetailRoute
 import com.sopt.presentation.groupDetail.confirmedDetail.ConfirmedDetailRoute
 import com.sopt.presentation.groupDetail.groupMember.GroupMemberRoute
@@ -63,6 +64,7 @@ fun NavGraphBuilder.groupDetailNavGraph(
         GroupDetailRoute(
             groupId = args.groupId,
             navigateUp = navHostController::navigateUp,
+            navigateToGroup = navHostController::navigateGroup,
             navigateToConfirmedDetail = { groupId, confirmedId, appointmentName ->
                 navHostController.navigateConfirmedDetail(
                     groupId = groupId,

@@ -335,7 +335,7 @@ fun RecommendationHeaderItem(
                 color = when (selectedItemIndex) {
                     -1 -> NoostakTheme.colors.gray200
                     priority -> NoostakTheme.colors.blue700
-                    else -> NoostakTheme.colors.gray50
+                    else -> NoostakTheme.colors.gray100
                 },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -343,7 +343,7 @@ fun RecommendationHeaderItem(
                 color = when (selectedItemIndex) {
                     -1 -> NoostakTheme.colors.white
                     priority -> NoostakTheme.colors.blue50
-                    else -> NoostakTheme.colors.gray50
+                    else -> NoostakTheme.colors.white
                 },
                 shape = RoundedCornerShape(12.dp)
             )

@@ -132,12 +132,12 @@ fun RecommendationItem(
     Column(
         modifier = Modifier
             .background(
-                color = if (isSelected) NoostakTheme.colors.gray100 else NoostakTheme.colors.blue50,
+                color = if (isSelected) NoostakTheme.colors.blue50 else NoostakTheme.colors.white,
                 shape = RoundedCornerShape(20.dp)
             )
             .border(
                 width = 1.dp,
-                color = if (isSelected) NoostakTheme.colors.gray500 else NoostakTheme.colors.blue100,
+                color = if (isSelected) NoostakTheme.colors.blue700 else NoostakTheme.colors.gray100,
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(dimensionResource(id = R.dimen.default_padding))

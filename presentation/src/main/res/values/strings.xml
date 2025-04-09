@@ -132,7 +132,7 @@
     <string name="text_calendar_appointment_mon">월</string>
     <string name="text_calendar_appointment_tues">화</string>
     <string name="text_calendar_appointment_wed">수</string>
-    <string name="text_calendar_appointment_thurs">목</string>
+    <string name="text_calendar_appointment_thu">목</string>
     <string name="text_calendar_appointment_fri">금</string>
     <string name="text_calendar_appointment_sat">토</string>
     <string name="text_calendar_appointment_sun">일</string>
@@ -154,6 +154,7 @@
     <string name="btn_appointment_submit">등록하기</string>
     <string name="text_appointment_submit_info">약속 정보</string>
     <string name="text_appointment_submit_name">약속 이름</string>
+    <string name="sb_appointment_submit_blank_name">약속 이름을 입력해주세요!</string>
     <string name="text_appointment_submit_time">약속 기한</string>
     <string name="text_appointment_submit_category">약속 카테고리</string>
     <string name="text_appointment_submit_duration">소요시간</string>

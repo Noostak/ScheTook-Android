@@ -18,6 +18,10 @@ android {
     }
 }
 
+kotlin {
+    jvmToolchain(17) // Java와 동일한 JVM 버전 사용
+}
+
 dependencies {
     // KotlinDependencies
     implementation(libs.kotlin)
