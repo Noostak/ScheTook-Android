@@ -70,11 +70,13 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             _getConfirmedDetailState.emit(UiState.Loading)
             groupDetailRepository.getConfirmedDetail(optionId)
-                .fold(onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
+                .fold(
+                    onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
                     onFailure = {
                         triggerDataErrorDialog()
                         _getConfirmedDetailState.emit(UiState.Failure(it.message.toString()))
-                    })
+                    }
+                )
         }
     }
 
@@ -173,8 +175,8 @@ class CalendarViewModel @Inject constructor(
         val appointments = _currentMonthAppointments
             .firstOrNull {
                 it.day == date.dayOfMonth &&
-                        currentYearMonth.year == date.year &&
-                        currentYearMonth.monthValue == date.monthValue
+                    currentYearMonth.year == date.year &&
+                    currentYearMonth.monthValue == date.monthValue
             }?.appointments ?: emptyList()
 
         _selectedDayAppointments.value = appointments
