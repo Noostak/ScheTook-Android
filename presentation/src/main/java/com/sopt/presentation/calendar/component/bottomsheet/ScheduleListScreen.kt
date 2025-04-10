@@ -23,14 +23,16 @@ import com.sopt.core.designsystem.component.button.NoostakBottomButton
 import com.sopt.core.designsystem.screen.NoostakEmptyScreen
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
+import com.sopt.core.util.time.CalculateTimeFromLocalDate
 import com.sopt.domain.entity.CalendarAppointmentEntity
 import com.sopt.domain.entity.ScheduleEntity
 import com.sopt.presentation.R
+import java.time.LocalDate
 
 @Composable
 fun ScheduleListScreen(
     data: ScheduleEntity,
-    onItemClick: (CalendarAppointmentEntity) -> Unit = {},
+    onItemClick: (Long) -> Unit = {},
     onCreateAppointmentBtnClick: () -> Unit = {}
 ) {
     Column(
@@ -45,7 +47,7 @@ fun ScheduleListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = data.date,
+                    text = CalculateTimeFromLocalDate().formatLocalDateWithDay(data.date),
                     color = NoostakTheme.colors.black,
                     style = NoostakTheme.typography.b1SemiBold
                 )
@@ -99,14 +101,14 @@ fun ScheduleListScreenPreview() {
         ScheduleListScreen(
             data = ScheduleEntity(
                 groupId = 1,
-                date = "1월 13일 (월)",
+                date = LocalDate.of(2025, 4, 4),
                 scheduleList = listOf(
                     CalendarAppointmentEntity(
                         id = 1,
                         name = "누스탁 회의dasfdsafsafdafdafsdfsafdsafdsadsdafsadfsdfsdafadafdsafsdafsaf",
                         category = "중요",
-                        startTime = "1월 13일(월)",
-                        endTime = "1월 13일(월)",
+                        startTime = "2024-09-07T00:00:00",
+                        endTime = "2024-09-07T00:20:00",
                         duration = 24,
                         date = ""
                     ),
@@ -114,8 +116,8 @@ fun ScheduleListScreenPreview() {
                         id = 2,
                         name = "누스탁 모각작",
                         category = "일정",
-                        startTime = "1월 15일(수)",
-                        endTime = "1월 15일(수)",
+                        startTime = "2024-09-07T06:00:00",
+                        endTime = "2024-09-07T08:00:00",
                         duration = 5,
                         date = ""
                     ),
@@ -123,8 +125,8 @@ fun ScheduleListScreenPreview() {
                         id = 3,
                         name = "누스탁 회식",
                         category = "취미",
-                        startTime = "1월 20일(화)",
-                        endTime = "1월 20일(화)",
+                        startTime = "2024-09-07T12:00:00",
+                        endTime = "2024-09-07T13:00:00",
                         duration = 2,
                         date = ""
                     )

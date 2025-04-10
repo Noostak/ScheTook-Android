@@ -29,7 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.core.extension.noRippleClickable
-import com.sopt.core.util.CalculateTime
+import com.sopt.core.util.time.CalculateTimeFromString
 import com.sopt.domain.entity.ProgressEntity
 import com.sopt.presentation.R
 import com.sopt.presentation.groupDetail.GroupDetailViewModel
@@ -74,7 +74,7 @@ fun ProgressItem(
     progressEntity: ProgressEntity,
     onItemClicked: (Long, Long, String) -> Unit
 ) {
-    val calculateTime = CalculateTime()
+    val calculateTime = CalculateTimeFromString()
     val startDate = calculateTime.extractDateWithKorean(progressEntity.startDate)
     val dayOfWeek = calculateTime.extractDayOfWeekWithBraces(progressEntity.startDate)
     val startHour = calculateTime.extractHourWithZero(progressEntity.startDate)

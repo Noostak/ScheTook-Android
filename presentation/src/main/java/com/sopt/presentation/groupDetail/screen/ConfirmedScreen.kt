@@ -22,7 +22,7 @@ import com.sopt.core.designsystem.component.box.CategoryBox
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.core.extension.noRippleClickable
-import com.sopt.core.util.CalculateTime
+import com.sopt.core.util.time.CalculateTimeFromString
 import com.sopt.domain.entity.ConfirmedEntity
 import com.sopt.presentation.R
 import com.sopt.presentation.groupDetail.GroupDetailViewModel
@@ -71,7 +71,7 @@ fun ConfirmedItem(
     confirmedEntity: ConfirmedEntity,
     onItemClicked: (Long, Long, String) -> Unit
 ) {
-    val calculateTime = CalculateTime()
+    val calculateTime = CalculateTimeFromString()
     val date = calculateTime.extractDateWithKorean(confirmedEntity.date)
     val dayOfWeek = calculateTime.extractDayOfWeekWithBraces(confirmedEntity.date)
     val startHour = calculateTime.extractHourWithZero(confirmedEntity.startTime)

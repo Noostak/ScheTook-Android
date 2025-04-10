@@ -6,6 +6,7 @@ import com.sopt.domain.entity.IdentityEntity
 
 fun ResponseGetOptionDetailDto.toAppointmentDetailEntity() = AppointmentDetailEntity(
     myIdentity = myInfo?.toIdentityEntity() ?: IdentityEntity("unavailable", -1, "나"),
+    appointmentName = appointmentName,
     date = appointmentTime.date,
     startTime = appointmentTime.startTime,
     endTime = appointmentTime.endTime,

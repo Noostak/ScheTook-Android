@@ -1,7 +1,9 @@
 package com.sopt.domain.entity
 
+import java.time.LocalDate
+
 data class ScheduleEntity(
     val groupId: Long = -1,
-    val date: String, // M월 D일 (E) - ex) 1월 13일 (월)
+    val date: LocalDate,
     val scheduleList: List<CalendarAppointmentEntity>
 )

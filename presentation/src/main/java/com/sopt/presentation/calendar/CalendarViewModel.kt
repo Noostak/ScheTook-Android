@@ -4,14 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.sopt.core.extension.toDateString
 import com.sopt.core.state.UiState
 import com.sopt.core.util.BaseViewModel
-import com.sopt.core.util.calendar.toFormattedKoreanDate
 import com.sopt.domain.entity.CalendarAppointmentDayEntity
 import com.sopt.domain.entity.CalendarAppointmentEntity
 import com.sopt.domain.entity.CalendarSchedule
+import com.sopt.domain.entity.ConfirmedDetailEntity
 import com.sopt.domain.entity.GroupEntity
-import com.sopt.domain.entity.IdentityEntity
-import com.sopt.domain.entity.ScheduleDetailEntity
-import com.sopt.domain.entity.ScheduleEntity
+import com.sopt.domain.repository.GroupDetailRepository
 import com.sopt.domain.usecase.GetCalendarAppointmentsUseCase
 import com.sopt.domain.usecase.GetCalendarGroupsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val getCalendarAppointmentsUseCase: GetCalendarAppointmentsUseCase,
+    private val groupDetailRepository: GroupDetailRepository,
     private val getCalendarGroupsUseCase: GetCalendarGroupsUseCase
 ) :
     BaseViewModel<CalendarSideEffect>() {
@@ -36,13 +35,16 @@ class CalendarViewModel @Inject constructor(
     val getGroupsState: StateFlow<UiState<List<GroupEntity>>> get() = _getGroupsState.asStateFlow()
 
     private val _selectedGroupId = MutableStateFlow<Long?>(null)
-    private val selectedGroupId: StateFlow<Long?> get() = _selectedGroupId
+    val selectedGroupId: StateFlow<Long?> get() = _selectedGroupId
 
     private val _showAddDialog = MutableStateFlow(false)
     val showAddDialog get() = _showAddDialog
 
     private val _showBottomSheet = MutableStateFlow(false)
     val showBottomSheet: StateFlow<Boolean> get() = _showBottomSheet
+
+    private val _showDataErrorDialog = MutableStateFlow(false)
+    val showDataErrorDialog: StateFlow<Boolean> get() = _showDataErrorDialog
 
     private val _scheduleMap = MutableStateFlow<Map<String, List<CalendarSchedule>>>(emptyMap())
     val scheduleMap: StateFlow<Map<String, List<CalendarSchedule>>> get() = _scheduleMap
@@ -55,8 +57,29 @@ class CalendarViewModel @Inject constructor(
 
     private var _currentMonthAppointments = emptyList<CalendarAppointmentDayEntity>()
 
+    private val _getConfirmedDetailState =
+        MutableStateFlow<UiState<ConfirmedDetailEntity>>(UiState.Empty)
+    val getConfirmedDetailState: StateFlow<UiState<ConfirmedDetailEntity>> =
+        _getConfirmedDetailState.asStateFlow()
+
     init {
         getGroups()
+    }
+
+    fun getConfirmedDetail(appointmentId: Long) {
+        viewModelScope.launch {
+            _getConfirmedDetailState.emit(UiState.Loading)
+            groupDetailRepository.getConfirmedDetail(appointmentId)
+                .fold(onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
+                    onFailure = {
+                        triggerDataErrorDialog()
+                        _getConfirmedDetailState.emit(UiState.Failure(it.message.toString()))
+                    })
+        }
+    }
+
+    fun showDataErrorDialog(show: Boolean) {
+        _showDataErrorDialog.update { show }
     }
 
     fun showAddDialog(show: Boolean) {
@@ -65,6 +88,14 @@ class CalendarViewModel @Inject constructor(
 
     fun showBottomSheet(show: Boolean) {
         _showBottomSheet.update { show }
+    }
+
+    private fun triggerDataErrorDialog() {
+        emitSideEffect(CalendarSideEffect.ShowDataErrorDialog)
+    }
+
+    private fun triggerShowBottomSheet() {
+        emitSideEffect(CalendarSideEffect.ShowBottomSheet)
     }
 
     fun navigateToGroupCreate() {
@@ -101,7 +132,6 @@ class CalendarViewModel @Inject constructor(
         getCalendarAppointments(currentYearMonth.year, currentYearMonth.monthValue)
     }
 
-    // 캘린더 약속 정보 가져오기
     private fun getCalendarAppointments(year: Int, month: Int) {
         viewModelScope.launch {
             selectedGroupId.value?.let {
@@ -143,64 +173,11 @@ class CalendarViewModel @Inject constructor(
         val appointments = _currentMonthAppointments
             .firstOrNull {
                 it.day == date.dayOfMonth &&
-                    currentYearMonth.year == date.year &&
-                    currentYearMonth.monthValue == date.monthValue
+                        currentYearMonth.year == date.year &&
+                        currentYearMonth.monthValue == date.monthValue
             }?.appointments ?: emptyList()
 
         _selectedDayAppointments.value = appointments
-
-        if (appointments.isNotEmpty()) {
-            showBottomSheet(true)
-            emitSideEffect(CalendarSideEffect.ShowBottomSheet)
-        }
+        triggerShowBottomSheet()
     }
-
-    // 해당 날짜 일정 가져오기
-    fun getSelectedScheduleEntity(): ScheduleEntity {
-        return ScheduleEntity(
-            groupId = selectedGroupId.value ?: -1,
-            date = _selectedDayAppointments.value.first().date.toFormattedKoreanDate(),
-            scheduleList = _selectedDayAppointments.value.map {
-                CalendarAppointmentEntity(
-                    id = it.id,
-                    name = it.name,
-                    category = it.category,
-                    startTime = it.startTime,
-                    endTime = it.endTime,
-                    duration = it.duration,
-                    date = it.date
-                )
-            }
-        )
-    }
-
-    val mockScheduleDetail = ScheduleDetailEntity(
-        myIdentity = IdentityEntity(
-            availability = "available",
-            position = 0,
-            name = "김언지"
-        ),
-        appointmentName = "누스탁이올시다 으아아아아아아아아아아아아아",
-        date = "1월 13일 (월)",
-        startTime = "1/13 21:00",
-        endTime = "1/13 21:00",
-        category = "기타",
-        availableMembersCount = 81,
-        availableMembers = listOf(
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이",
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이",
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이",
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이",
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이",
-            "하루", "야마다", "이누마키", "츠키시마",
-            "마이키", "호크스", "토도로키", "아이자와", "리바이", "이구로", "호시나", "신에이"
-        ),
-        unavailableMembersCount = 3,
-        unavailableMembers = listOf("박보검", "정해인", "권지용")
-    )
 }

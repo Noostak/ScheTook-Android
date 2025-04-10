@@ -2,12 +2,13 @@ package com.sopt.domain.entity
 
 data class AppointmentDetailEntity(
     val myIdentity: IdentityEntity,
-    val date: String,
-    val startTime: String,
-    val endTime: String,
-    val category: String,
-    val availableMembersCount: Int,
+    val appointmentName: String = "",
+    val date: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val category: String = "",
+    val availableMembersCount: Int = 0,
     val availableMembers: List<String>,
-    val unavailableMembersCount: Int,
+    val unavailableMembersCount: Int = 0,
     val unavailableMembers: List<String>
 )

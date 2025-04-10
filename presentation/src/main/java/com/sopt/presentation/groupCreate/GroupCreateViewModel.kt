@@ -86,7 +86,7 @@ class GroupCreateViewModel @Inject constructor(
 
     private fun validateGroupName(groupName: String) {
         viewModelScope.launch {
-            _groupProfileState.update { it.copy(isGroupNameCheck = groupName.length in 1..30) }
+            _groupProfileState.update { it.copy(isGroupNameCheck = groupName.isNotBlank() && groupName.length in 1..30) }
         }
     }
 }

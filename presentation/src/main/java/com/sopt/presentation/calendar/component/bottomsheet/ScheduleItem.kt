@@ -18,19 +18,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.core.extension.noRippleClickable
+import com.sopt.core.util.time.CalculateTimeFromString
 import com.sopt.domain.entity.CalendarAppointmentEntity
 import com.sopt.presentation.R
 
 @Composable
 fun ScheduleItem(
     data: CalendarAppointmentEntity,
-    onItemClick: (CalendarAppointmentEntity) -> Unit = {}
+    onItemClick: (Long) -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .noRippleClickable { onItemClick(data) }
+            .noRippleClickable { onItemClick(data.id) }
             .background(color = NoostakTheme.colors.gray50, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
     ) {
@@ -51,10 +52,20 @@ fun ScheduleItem(
                 modifier = Modifier.padding(bottom = 3.dp)
             )
             Text(
-                text = if (data.duration.toInt() == 24) stringResource(R.string.text_calendar_schedule_item_all_day) else data.duration.toString(),
+                text = if (data.duration.toInt() == FULL_DURATION) {
+                    stringResource(R.string.text_calendar_schedule_item_all_day)
+                } else {
+                    "${
+                    CalculateTimeFromString().extractHourWithZero(
+                        data.startTime
+                    )
+                    }~${CalculateTimeFromString().extractHourWithZero(data.endTime)}"
+                },
                 style = NoostakTheme.typography.c4Regular,
                 color = NoostakTheme.colors.gray700
             )
         }
     }
 }
+
+const val FULL_DURATION = 24

@@ -6,4 +6,5 @@ sealed interface CalendarSideEffect {
     data object NavigateToAppointmentCreate : CalendarSideEffect
     data class ShowAddDialog(val show: Boolean) : CalendarSideEffect
     data object ShowBottomSheet : CalendarSideEffect
+    data object ShowDataErrorDialog : CalendarSideEffect
 }

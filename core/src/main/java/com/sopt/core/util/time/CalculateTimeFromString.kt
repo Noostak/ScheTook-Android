@@ -1,11 +1,11 @@
-package com.sopt.core.util
+package com.sopt.core.util.time
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-class CalculateTime {
+class CalculateTimeFromString {
     // ex) 09/07
     fun extractFullDateWithSlash(dateTime: String): String {
         return parseDateTime(dateTime).toLocalDate().format(DateTimeFormatter.ofPattern("MM/dd"))

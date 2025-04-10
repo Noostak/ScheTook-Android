@@ -10,6 +10,7 @@ fun ResponseGetGroupConfirmedDetailDto.toConfirmedDetailEntity() = ConfirmedDeta
         position = myInfo.position,
         name = myInfo.name
     ),
+    appointmentName = appointmentName,
     date = appointmentTime.date,
     startTime = appointmentTime.startTime,
     endTime = appointmentTime.endTime,

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.core.type.AvailabilityLevel
 import com.sopt.core.type.CellType
-import com.sopt.core.util.CalculateTime
+import com.sopt.core.util.time.CalculateTimeFromString
 import com.sopt.domain.entity.AppointmentMembersInfoEntity
 import com.sopt.domain.entity.TimeEntity
 
@@ -138,8 +138,8 @@ class TimeTable {
     }
 
     private fun formatDateTimeToCustomFormat(dateTime: String): String {
-        val dayOfWeek = CalculateTime().extractDayOfWeek(dateTime)
-        val date = CalculateTime().extractDateWithSlash(dateTime)
+        val dayOfWeek = CalculateTimeFromString().extractDayOfWeek(dateTime)
+        val date = CalculateTimeFromString().extractDateWithSlash(dateTime)
         return "$dayOfWeek\n$date"
     }
 
