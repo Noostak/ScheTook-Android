@@ -105,4 +105,6 @@ sealed class AppointmentCheckSideEffect {
     data class NavigateToGroupDetail(val groupId: Long) : AppointmentCheckSideEffect()
     data class ShowErrorDialog(val show: Boolean, val dialogType: DialogType) :
         AppointmentCheckSideEffect()
+
+    data class ShowSnackBar(val message: Int) : AppointmentCheckSideEffect()
 }

@@ -1,5 +1,8 @@
 package com.sopt.presentation.appointment.appointmentCheck
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,15 +11,20 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -27,12 +35,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
+import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
+import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
 import com.sopt.core.designsystem.component.timetable.NoostakEditableTimeTable
 import com.sopt.core.designsystem.component.topappbar.NoostakTopAppBar
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.domain.entity.TimeEntity
 import com.sopt.presentation.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
@@ -47,9 +59,24 @@ fun AppointmentCheckRoute(
     navigateToGroupDetail: (Long) -> Unit,
     appointmentCheckViewModel: AppointmentCheckViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val showErrorDialog by appointmentCheckViewModel.showErrorDialog.collectAsStateWithLifecycle()
     var selectedData by remember { mutableStateOf(emptyList<TimeEntity>()) }
     val rememberedAvailablePeriods = remember { availablePeriods }
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val snackBarVisible = remember { mutableStateOf(false) }
+
+    val onShowFailureSnackBar: (message: String) -> Unit = {
+        coroutineScope.launch {
+            snackBarVisible.value = true
+            val job = launch { snackBarHostState.showSnackbar(message = it) }
+            delay(SNACK_BAR_DURATION)
+            job.cancel()
+            snackBarVisible.value = false
+        }
+    }
+
     LaunchedEffect(key1 = appointmentCheckViewModel.sideEffects) {
         appointmentCheckViewModel.sideEffects.collect { sideEffect ->
             when (sideEffect) {
@@ -70,6 +97,10 @@ fun AppointmentCheckRoute(
                     sideEffect.show,
                     sideEffect.dialogType
                 )
+
+                is AppointmentCheckSideEffect.ShowSnackBar -> onShowFailureSnackBar(
+                    context.getString(sideEffect.message)
+                )
             }
         }
     }
@@ -81,13 +112,16 @@ fun AppointmentCheckRoute(
         onSelectedDataChange = { selectedData = it },
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
+            // TODO: selectedData가 duration 이하인지 체크하는 로직 추가
             appointmentCheckViewModel.postTimeTable(
                 groupId,
                 appointmentId,
                 appointmentName,
                 selectedData
             )
-        }
+        },
+        snackBarHostState = snackBarHostState,
+        snackBarVisible = snackBarVisible
     )
 
     if (showErrorDialog.first) {
@@ -116,7 +150,9 @@ fun AppointmentCheckScreen(
     availablePeriods: List<TimeEntity>,
     onSelectedDataChange: (List<TimeEntity>) -> Unit = {},
     onBackButtonClick: (Long) -> Unit,
-    onConfirmButtonClick: () -> Unit
+    onConfirmButtonClick: () -> Unit,
+    snackBarHostState: SnackbarHostState,
+    snackBarVisible: MutableState<Boolean>
 ) {
     Scaffold(
         modifier = Modifier
@@ -128,6 +164,26 @@ fun AppointmentCheckScreen(
                 isIconVisible = true,
                 onBackButtonClick = { onBackButtonClick(groupId) }
             )
+        },
+        snackbarHost = {
+            AnimatedVisibility(
+                visible = snackBarVisible.value,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it })
+            ) {
+                SnackbarHost(
+                    modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.bottom_padding_snack_bar_non_exist_code)),
+                    hostState = snackBarHostState,
+                    snackbar = { snackBarData ->
+                        NoostakSnackBar(
+                            message = snackBarData.visuals.message,
+                            textStyle = NoostakTheme.typography.c3SemiBold,
+                            textColor = NoostakTheme.colors.red01,
+                            backgroundColor = NoostakTheme.colors.pink
+                        )
+                    }
+                )
+            }
         }
     ) { innerPadding ->
         Box(
@@ -196,7 +252,9 @@ fun PreviewAppointmentConfirmScreen() {
                 )
             ),
             onBackButtonClick = {},
-            onConfirmButtonClick = {}
+            onConfirmButtonClick = {},
+            snackBarHostState = SnackbarHostState(),
+            snackBarVisible = remember { mutableStateOf(true) }
         )
     }
 }
