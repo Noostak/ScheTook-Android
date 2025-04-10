@@ -65,7 +65,7 @@ fun ScheduleListScreen(
                 ) {
                     itemsIndexed(
                         items = data.scheduleList,
-                        key = { _, item -> item.id }
+                        key = { _, item -> item.appointmentId }
                     ) { index, item ->
                         ScheduleItem(data = item, onItemClick = onItemClick)
                     }
@@ -104,7 +104,8 @@ fun ScheduleListScreenPreview() {
                 date = LocalDate.of(2025, 4, 4),
                 scheduleList = listOf(
                     CalendarAppointmentEntity(
-                        id = 1,
+                        appointmentId = 1,
+                        optionId = 1,
                         name = "누스탁 회의dasfdsafsafdafdafsdfsafdsafdsadsdafsadfsdfsdafadafdsafsdafsaf",
                         category = "중요",
                         startTime = "2024-09-07T00:00:00",
@@ -113,7 +114,8 @@ fun ScheduleListScreenPreview() {
                         date = ""
                     ),
                     CalendarAppointmentEntity(
-                        id = 2,
+                        appointmentId = 2,
+                        optionId = 2,
                         name = "누스탁 모각작",
                         category = "일정",
                         startTime = "2024-09-07T06:00:00",
@@ -122,7 +124,8 @@ fun ScheduleListScreenPreview() {
                         date = ""
                     ),
                     CalendarAppointmentEntity(
-                        id = 3,
+                        appointmentId = 3,
+                        optionId = 3,
                         name = "누스탁 회식",
                         category = "취미",
                         startTime = "2024-09-07T12:00:00",

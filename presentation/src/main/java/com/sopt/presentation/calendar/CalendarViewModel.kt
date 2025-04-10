@@ -66,15 +66,17 @@ class CalendarViewModel @Inject constructor(
         getGroups()
     }
 
-    fun getConfirmedDetail(appointmentId: Long) {
+    fun getConfirmedDetail(optionId: Long) {
         viewModelScope.launch {
             _getConfirmedDetailState.emit(UiState.Loading)
-            groupDetailRepository.getConfirmedDetail(appointmentId)
-                .fold(onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
+            groupDetailRepository.getConfirmedDetail(optionId)
+                .fold(
+                    onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
                     onFailure = {
                         triggerDataErrorDialog()
                         _getConfirmedDetailState.emit(UiState.Failure(it.message.toString()))
-                    })
+                    }
+                )
         }
     }
 
@@ -143,7 +145,7 @@ class CalendarViewModel @Inject constructor(
                                     LocalDate.of(year, month, dayAppointments.day)
                                         .toDateString() to dayAppointments.appointments.map { appointment ->
                                         CalendarSchedule(
-                                            scrapId = appointment.id,
+                                            scrapId = appointment.appointmentId,
                                             title = appointment.name,
                                             categoryType = appointment.category
                                         )
@@ -173,8 +175,8 @@ class CalendarViewModel @Inject constructor(
         val appointments = _currentMonthAppointments
             .firstOrNull {
                 it.day == date.dayOfMonth &&
-                        currentYearMonth.year == date.year &&
-                        currentYearMonth.monthValue == date.monthValue
+                    currentYearMonth.year == date.year &&
+                    currentYearMonth.monthValue == date.monthValue
             }?.appointments ?: emptyList()
 
         _selectedDayAppointments.value = appointments

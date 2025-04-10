@@ -304,9 +304,9 @@ fun AppointmentCreateInfoScreen(
                     val time = appointmentDuration.toIntOrNull() ?: 0
                     onButtonClick(groupId, trimmedName, appointmentCategory, time)
                 },
-                isEnabled = appointmentName.isNotEmpty() &&appointmentCategory.isNotBlank() &&
-                        appointmentDuration.isNotBlank() &&
-                        (appointmentDuration.toIntOrNull()?.let { it in 1..10 } == true),
+                isEnabled = appointmentName.isNotEmpty() && appointmentCategory.isNotBlank() &&
+                    appointmentDuration.isNotBlank() &&
+                    (appointmentDuration.toIntOrNull()?.let { it in 1..10 } == true),
                 deactivateColor = NoostakTheme.colors.gray500,
                 activateColor = NoostakTheme.colors.gray900
             )
@@ -329,7 +329,7 @@ fun AppointmentCreateInfoScreenPreview() {
             snackBarVisible = snackBarVisible,
             showSnackBar = {
                 snackBarVisible.value = true
-            },
+            }
         )
     }
 }

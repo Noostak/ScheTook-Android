@@ -20,7 +20,8 @@ fun CalendarAppointmentDayDto.toCalendarAppointmentDayEntity() = CalendarAppoint
 )
 
 fun CalendarAppointmentDto.toCalendarAppointmentEntity() = CalendarAppointmentEntity(
-    id = id,
+    appointmentId = appointmentId,
+    optionId = optionId,
     name = name,
     date = date,
     startTime = startTime,

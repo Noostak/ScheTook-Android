@@ -41,13 +41,15 @@ fun NavController.navigateAppointmentCheck(
     groupId: Long,
     appointmentId: Long,
     appointmentName: String,
+    duration: Long,
     navOptions: NavOptions? = null
 ) {
     navigate(
         route = AppointmentCheck(
             groupId = groupId,
             appointmentId = appointmentId,
-            appointmentName = appointmentName
+            appointmentName = appointmentName,
+            duration = duration
         ),
         navOptions = navOptions
     )
@@ -82,7 +84,7 @@ fun NavGraphBuilder.appointmentNavGraph(
             appointmentId = args.appointmentId,
             appointmentName = args.appointmentName,
             navigateUp = navHostController::navigateUp,
-            navigateToAppointmentCheck = { groupId, appointmentId, appointmentName, availablePeriods ->
+            navigateToAppointmentCheck = { groupId, appointmentId, appointmentName, availablePeriods, duration ->
                 navHostController.currentBackStackEntry?.savedStateHandle?.set(
                     "availablePeriods",
                     availablePeriods
@@ -90,7 +92,8 @@ fun NavGraphBuilder.appointmentNavGraph(
                 navHostController.navigateAppointmentCheck(
                     groupId = groupId,
                     appointmentId = appointmentId,
-                    appointmentName = appointmentName
+                    appointmentName = appointmentName,
+                    duration = duration
                 )
             },
             navigateToAppointmentConfirm = { groupId, appointmentId, optionId, appointmentName, isHost ->
@@ -116,6 +119,7 @@ fun NavGraphBuilder.appointmentNavGraph(
             appointmentId = args.appointmentId,
             appointmentName = args.appointmentName,
             availablePeriods = availablePeriods,
+            duration = args.duration,
             navigateUp = navHostController::navigateUp,
             navigateToAppointment = { groupId, appointmentId, appointmentName ->
                 navHostController.navigateAppointment(
@@ -156,7 +160,8 @@ data class Appointment(
 data class AppointmentCheck(
     val groupId: Long,
     val appointmentId: Long,
-    val appointmentName: String
+    val appointmentName: String,
+    val duration: Long
 ) : Route
 
 @Serializable

@@ -31,7 +31,7 @@ fun ScheduleItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .noRippleClickable { onItemClick(data.id) }
+            .noRippleClickable { onItemClick(data.optionId) }
             .background(color = NoostakTheme.colors.gray50, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
     ) {

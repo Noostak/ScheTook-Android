@@ -69,7 +69,7 @@ fun AppointmentRoute(
     appointmentId: Long,
     appointmentName: String,
     navigateUp: () -> Unit,
-    navigateToAppointmentCheck: (Long, Long, String, List<TimeEntity>) -> Unit,
+    navigateToAppointmentCheck: (Long, Long, String, List<TimeEntity>, Long) -> Unit,
     navigateToAppointmentConfirm: (Long, Long, Long, String, Boolean) -> Unit,
     appointmentViewModel: AppointmentViewModel = hiltViewModel()
 ) {
@@ -85,7 +85,8 @@ fun AppointmentRoute(
                         sideEffect.groupId,
                         sideEffect.appointmentsId,
                         sideEffect.appointmentName,
-                        sideEffect.availablePeriods
+                        sideEffect.availablePeriods,
+                        sideEffect.duration
                     )
                 }
 
@@ -122,7 +123,8 @@ fun AppointmentRoute(
                             groupId,
                             appointmentId,
                             appointmentName,
-                            (getTimeTableState as UiState.Success).data.appointmentSchedule.appointmentHostSelectionTimes
+                            (getTimeTableState as UiState.Success).data.appointmentSchedule.appointmentHostSelectionTimes,
+                            (getTimeTableState as UiState.Success).data.appointmentSchedule.duration
                         )
                     }
                 }
