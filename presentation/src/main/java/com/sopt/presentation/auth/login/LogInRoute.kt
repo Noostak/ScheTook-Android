@@ -1,7 +1,11 @@
 package com.sopt.presentation.auth.login
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +28,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
@@ -31,6 +38,9 @@ import com.sopt.core.extension.toast
 import com.sopt.core.type.DialogType
 import com.sopt.presentation.R
 import com.sopt.presentation.auth.component.LoginButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginRoute(
@@ -40,6 +50,38 @@ fun LoginRoute(
 ) {
     val context = LocalContext.current
     val showDialog by loginViewModel.showDialog.collectAsStateWithLifecycle()
+    val googleSignInIntent by loginViewModel.googleSignInIntent.collectAsStateWithLifecycle()
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            loginViewModel.showDialog(DialogType.NETWORK_LOGIN_GOOGLE_FAILURE, true)
+            return@rememberLauncherForActivityResult
+        }
+
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
+                val authCode = account.serverAuthCode
+                if (!authCode.isNullOrBlank()) {
+                    loginViewModel.exchangeAuthCodeForAccessToken(authCode)
+                } else {
+                    loginViewModel.showDialog(DialogType.NETWORK_LOGIN_GOOGLE_FAILURE, true)
+                }
+            } catch (e: Exception) {
+                loginViewModel.showDialog(DialogType.NETWORK_LOGIN_GOOGLE_FAILURE, true)
+            }
+        }
+        loginViewModel.clearGoogleSignInIntent()
+    }
+
+    LaunchedEffect(googleSignInIntent) {
+        googleSignInIntent?.let { intent ->
+            googleSignInLauncher.launch(intent)
+        }
+    }
 
     LaunchedEffect(loginViewModel.sideEffects) {
         loginViewModel.sideEffects.collect { sideEffect ->
@@ -63,7 +105,10 @@ fun LoginRoute(
                     loginViewModel.showDialog(dialogType, false)
                     when (dialogType) {
                         DialogType.NETWORK_LOGIN_KAKAO_FAILURE -> loginViewModel.kakaoLogin(context)
-                        DialogType.NETWORK_LOGIN_GOOGLE_FAILURE -> loginViewModel.googleLogin(context)
+                        DialogType.NETWORK_LOGIN_GOOGLE_FAILURE -> loginViewModel.prepareGoogleSignInIntent(
+                            context
+                        )
+
                         else -> Unit
                     }
                 },
@@ -74,7 +119,7 @@ fun LoginRoute(
 
     LoginScreen(
         onKakaoLoginClick = { loginViewModel.kakaoLogin(context) },
-        onGoogleLoginClick = { loginViewModel.googleLogin(context) }
+        onGoogleLoginClick = { loginViewModel.prepareGoogleSignInIntent(context) }
     )
 }
 
@@ -88,6 +133,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(NoostakTheme.colors.blue600)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(dimensionResource(R.dimen.horizontal_padding)),
@@ -122,8 +168,8 @@ private fun SocialLoginBottom(
     ) {
         Text(
             text = stringResource(R.string.tv_login_description),
-            color = NoostakTheme.colors.gray900,
-            style = NoostakTheme.typography.c3Regular,
+            color = NoostakTheme.colors.white,
+            style = NoostakTheme.typography.c3SemiBold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         LoginButton(

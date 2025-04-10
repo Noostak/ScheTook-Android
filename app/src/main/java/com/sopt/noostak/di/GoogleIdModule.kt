@@ -17,4 +17,11 @@ object GoogleIdModule {
     fun provideGoogleClientId(): String {
         return BuildConfig.GOOGLE_CLIENT_ID
     }
+
+    @Provides
+    @Singleton
+    @Named("GoogleClientSecret")
+    fun provideGoogleClientSecret(): String {
+        return BuildConfig.GOOGLE_CLIENT_SECRET
+    }
 }

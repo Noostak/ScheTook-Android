@@ -116,4 +116,6 @@ dependencies {
     // Google
     implementation(libs.play.services.auth)
     implementation(libs.google.id)
+    implementation(libs.credentials.core)
+    implementation(libs.credentials.play.services.auth)
 }
