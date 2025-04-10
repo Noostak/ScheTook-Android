@@ -19,7 +19,8 @@ data class CalendarAppointmentDayDto(
 
 @Serializable
 data class CalendarAppointmentDto(
-    @SerialName("id") val id: Long,
+    @SerialName("appointmentId") val appointmentId: Long,
+    @SerialName("optionId") val optionId: Long,
     @SerialName("name") val name: String,
     @SerialName("date") val date: String,
     @SerialName("startTime") val startTime: String,

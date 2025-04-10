@@ -66,10 +66,10 @@ class CalendarViewModel @Inject constructor(
         getGroups()
     }
 
-    fun getConfirmedDetail(appointmentId: Long) {
+    fun getConfirmedDetail(optionId: Long) {
         viewModelScope.launch {
             _getConfirmedDetailState.emit(UiState.Loading)
-            groupDetailRepository.getConfirmedDetail(appointmentId)
+            groupDetailRepository.getConfirmedDetail(optionId)
                 .fold(onSuccess = { _getConfirmedDetailState.emit(UiState.Success(it)) },
                     onFailure = {
                         triggerDataErrorDialog()
@@ -143,7 +143,7 @@ class CalendarViewModel @Inject constructor(
                                     LocalDate.of(year, month, dayAppointments.day)
                                         .toDateString() to dayAppointments.appointments.map { appointment ->
                                         CalendarSchedule(
-                                            scrapId = appointment.id,
+                                            scrapId = appointment.appointmentId,
                                             title = appointment.name,
                                             categoryType = appointment.category
                                         )

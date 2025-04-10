@@ -13,7 +13,8 @@ data class CalendarAppointmentDayEntity(
 )
 
 data class CalendarAppointmentEntity(
-    val id: Long,
+    val appointmentId: Long,
+    val optionId: Long,
     val name: String,
     val date: String,
     val startTime: String,

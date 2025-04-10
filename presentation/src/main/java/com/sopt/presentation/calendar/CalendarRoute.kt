@@ -87,7 +87,7 @@ fun CalendarRoute(
     val currentYearMonth by remember { derivedStateOf { getYearMonthByPage(pagerState.currentPage) } }
 
     var clickDate by remember { mutableStateOf<LocalDate?>(null) }
-    var clickAppointmentId by remember { mutableLongStateOf(-1) }
+    var clickOptionId by remember { mutableLongStateOf(-1) }
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
@@ -118,7 +118,7 @@ fun CalendarRoute(
         NoostakDialog(
             dialogType = DialogType.DATA_FAILURE,
             onClick = {
-                calendarViewModel.getConfirmedDetail(clickAppointmentId)
+                calendarViewModel.getConfirmedDetail(clickOptionId)
             },
             onDismissRequest = {
                 calendarViewModel.showDataErrorDialog(false)
@@ -158,7 +158,8 @@ fun CalendarRoute(
                                     date = date,
                                     scheduleList = calendarViewModel.selectedDayAppointments.value.map {
                                         CalendarAppointmentEntity(
-                                            id = it.id,
+                                            appointmentId = it.appointmentId,
+                                            optionId = it.optionId,
                                             name = it.name,
                                             category = it.category,
                                             startTime = it.startTime,
@@ -169,8 +170,8 @@ fun CalendarRoute(
                                     }
                                 ),
                                 onItemClick = { id ->
-                                    clickAppointmentId = id
-                                    calendarViewModel.getConfirmedDetail(clickAppointmentId)
+                                    clickOptionId = id
+                                    calendarViewModel.getConfirmedDetail(clickOptionId)
                                     navController.navigate(SCHEDULE_DETAIL)
                                 },
                                 onCreateAppointmentBtnClick = {
