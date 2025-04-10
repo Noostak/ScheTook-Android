@@ -41,6 +41,7 @@ fun AppointmentCheckRoute(
     appointmentId: Long,
     appointmentName: String,
     availablePeriods: List<TimeEntity>,
+    duration: Long,
     navigateUp: () -> Unit,
     navigateToAppointment: (Long, Long, String) -> Unit,
     navigateToGroupDetail: (Long) -> Unit,

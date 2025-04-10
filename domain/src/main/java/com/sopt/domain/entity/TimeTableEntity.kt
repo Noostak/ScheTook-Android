@@ -8,6 +8,7 @@ data class TimeTableEntity(
 )
 
 data class AppointmentScheduleEntity(
+    val duration: Long,
     val appointmentHostSelectionTimes: List<TimeEntity>,
     val appointmentMembersInfo: List<AppointmentMembersInfoEntity>
 )

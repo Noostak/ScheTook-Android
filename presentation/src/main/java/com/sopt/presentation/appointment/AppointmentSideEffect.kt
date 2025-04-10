@@ -8,7 +8,8 @@ sealed class AppointmentSideEffect {
         val groupId: Long,
         val appointmentsId: Long,
         val appointmentName: String,
-        val availablePeriods: List<TimeEntity>
+        val availablePeriods: List<TimeEntity>,
+        val duration: Long
     ) : AppointmentSideEffect()
 
     data class NavigateToAppointmentConfirm(

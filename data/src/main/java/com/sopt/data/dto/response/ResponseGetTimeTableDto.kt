@@ -12,6 +12,7 @@ data class ResponseGetTimeTableDto(
 
 @Serializable
 data class ResponseAppointmentScheduleDto(
+    @SerialName("duration") val duration: Long,
     @SerialName("appointmentHostSelectionTimes") val appointmentHostSelectionTimes: List<BaseTimeDto>,
     @SerialName("appointmentMembersInfo") val appointmentMembersInfo: List<ResponseAppointmentMembersInfoDto?>
 )
