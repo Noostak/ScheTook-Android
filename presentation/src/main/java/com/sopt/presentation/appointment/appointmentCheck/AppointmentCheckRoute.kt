@@ -99,7 +99,7 @@ fun AppointmentCheckRoute(
                 )
 
                 is AppointmentCheckSideEffect.ShowSnackBar -> onShowFailureSnackBar(
-                    context.getString(sideEffect.message)
+                    context.getString(sideEffect.message, duration / 60)
                 )
             }
         }
@@ -112,13 +112,14 @@ fun AppointmentCheckRoute(
         onSelectedDataChange = { selectedData = it },
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
-            // TODO: selectedData가 duration 이하인지 체크하는 로직 추가
-            appointmentCheckViewModel.postTimeTable(
-                groupId,
-                appointmentId,
-                appointmentName,
-                selectedData
-            )
+            if (appointmentCheckViewModel.isSelectedDataValid(duration/60, selectedData)) {
+                appointmentCheckViewModel.postTimeTable(
+                    groupId,
+                    appointmentId,
+                    appointmentName,
+                    selectedData
+                )
+            }
         },
         snackBarHostState = snackBarHostState,
         snackBarVisible = snackBarVisible

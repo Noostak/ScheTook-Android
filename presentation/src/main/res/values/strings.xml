@@ -168,6 +168,9 @@
     <string name="text_appointment_submit_complete_date_consecutive">%1$s ~ %2$s</string>
     <string name="text_appointment_submit_complete_separator">", "</string>
 
+    <!-- 약속 시간 입력 -->
+    <string name="sb_appointment_check_invalid">%1$d시간 이상 연속으로 선택해주세요</string>
+
     <!-- 날짜 형식 -->
     <string name="text_brace_between_hours">%1$s ~ %2$s</string>
 
