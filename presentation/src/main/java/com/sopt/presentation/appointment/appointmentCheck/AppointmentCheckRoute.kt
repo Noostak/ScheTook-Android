@@ -110,6 +110,7 @@ fun AppointmentCheckRoute(
         appointmentName = appointmentName,
         availablePeriods = rememberedAvailablePeriods,
         onSelectedDataChange = { selectedData = it },
+        duration = duration,
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
             if (appointmentCheckViewModel.isSelectedDataValid(duration/60, selectedData)) {
@@ -150,6 +151,7 @@ fun AppointmentCheckScreen(
     appointmentName: String,
     availablePeriods: List<TimeEntity>,
     onSelectedDataChange: (List<TimeEntity>) -> Unit = {},
+    duration: Long,
     onBackButtonClick: (Long) -> Unit,
     onConfirmButtonClick: () -> Unit,
     snackBarHostState: SnackbarHostState,
@@ -200,10 +202,17 @@ fun AppointmentCheckScreen(
             ) {
                 Text(
                     modifier = Modifier
-                        .padding(top = 11.dp, start = 6.dp, bottom = 16.dp),
-                    text = stringResource(R.string.title_appointment_check),
+                        .padding(top = 11.dp, start = 6.dp),
+                    text = stringResource(R.string.title_appointment_check, duration/60),
                     color = NoostakTheme.colors.black,
                     style = NoostakTheme.typography.h4Bold,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    modifier = Modifier.padding(start = 6.dp, bottom = 16.dp),
+                    text = "어렵다면 '가능한 시간이 없어요'를 선택해주세요",
+                    color = NoostakTheme.colors.gray900,
+                    style = NoostakTheme.typography.c3Regular,
                     textAlign = TextAlign.Start
                 )
                 NoostakEditableTimeTable(
@@ -252,6 +261,7 @@ fun PreviewAppointmentConfirmScreen() {
                     endTime = "2024-09-07T18:00:00"
                 )
             ),
+            duration = 360,
             onBackButtonClick = {},
             onConfirmButtonClick = {},
             snackBarHostState = SnackbarHostState(),

@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.IOException
 import java.time.Duration
 import java.time.LocalDateTime
@@ -92,19 +91,23 @@ class AppointmentCheckViewModel @Inject constructor(
             if (nextStart == currentEnd) {
                 currentEnd = nextEnd
             } else {
-                val blockDurationInHours = Duration.between(currentStart, currentEnd).toHours()
-                if (blockDurationInHours >= duration) return true
-
+                // 블록이 끊기면 검사
+                val blockDuration = Duration.between(currentStart, currentEnd).toHours()
+                if (blockDuration < duration) {
+                    emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
+                    return false
+                }
                 currentStart = nextStart
                 currentEnd = nextEnd
             }
         }
+        val finalBlockDuration = Duration.between(currentStart, currentEnd).toHours()
+        if (finalBlockDuration < duration) {
+            emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
+            return false
+        }
 
-        val finalDurationInHours = Duration.between(currentStart, currentEnd).toHours()
-        if (finalDurationInHours >= duration) return true
-
-        emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
-        return false
+        return true
     }
 
     fun showErrorDialog(show: Boolean, dialogType: DialogType) {
