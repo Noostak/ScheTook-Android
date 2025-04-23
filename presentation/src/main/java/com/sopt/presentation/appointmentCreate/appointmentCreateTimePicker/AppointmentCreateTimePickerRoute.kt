@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +15,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -41,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
-import com.sopt.core.designsystem.component.checkbox.CircularCheckbox
+import com.sopt.core.designsystem.component.checkbox.NoostakCheckbox
 import com.sopt.core.designsystem.component.progressbar.NoostakProgressBar
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
 import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
@@ -51,7 +47,6 @@ import com.sopt.core.designsystem.component.timepicker.NoostakTimePicker
 import com.sopt.core.designsystem.component.topappbar.NoostakTopAppBar
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
-import com.sopt.core.extension.noRippleClickable
 import com.sopt.presentation.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -190,45 +185,19 @@ fun AppointmentCreateTimePickerScreen(
             Spacer(modifier = Modifier.height(18.dp))
             NoostakProgressBar(progressBar = listOf(false, false, true))
             NoostakHeaderText(text = stringResource(R.string.text_calendar_appointment_time_choose))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 18.dp)
-                    .height(54.dp)
-                    .border(
-                        width = 0.5.dp,
-                        color = NoostakTheme.colors.gray500,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .background(
-                        color = if (isChecked) NoostakTheme.colors.gray50 else NoostakTheme.colors.white,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .noRippleClickable {
-                        isChecked = !isChecked
-                        showPicker = !isChecked
+            NoostakCheckbox(
+                modifier = Modifier.padding(top = 18.dp),
+                text = stringResource(R.string.text_calendar_appointment_time_select),
+                isChecked = isChecked,
+                onCheckedChange = {
+                    isChecked = it
+                    showPicker = !isChecked
+                    if (isChecked) {
+                        selectedStartHour = null
+                        selectedEndHour = null
                     }
-                    .padding(horizontal = 12.dp, vertical = 15.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.text_calendar_appointment_time_select),
-                    modifier = Modifier.weight(1f),
-                    style = NoostakTheme.typography.b4SemiBold,
-                    color = NoostakTheme.colors.gray900
-                )
-                CircularCheckbox(
-                    isChecked = isChecked,
-                    onCheckedChange = {
-                        isChecked = it
-                        showPicker = !it
-                        if (isChecked) {
-                            selectedStartHour = null
-                            selectedEndHour = null
-                        }
-                    }
-                )
-            }
+                }
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -283,7 +252,7 @@ fun AppointmentCreateTimePickerScreen(
                         null
                     } else {
                         "${
-                        selectedStartHour?.toString()?.padStart(2, '0')
+                            selectedStartHour?.toString()?.padStart(2, '0')
                         }:00 ~ ${adjustedEndHour.toString().padStart(2, '0')}:00"
                     }
                     onButtonClick(

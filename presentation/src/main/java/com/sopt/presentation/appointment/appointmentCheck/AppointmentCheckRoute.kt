@@ -3,12 +3,9 @@ package com.sopt.presentation.appointment.appointmentCheck
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -42,7 +37,6 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
-import com.sopt.core.designsystem.component.checkbox.CircularCheckbox
 import com.sopt.core.designsystem.component.checkbox.NoostakCheckbox
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
@@ -51,7 +45,6 @@ import com.sopt.core.designsystem.component.timetable.NoostakEditableTimeTable
 import com.sopt.core.designsystem.component.topappbar.NoostakTopAppBar
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
-import com.sopt.core.extension.noRippleClickable
 import com.sopt.domain.entity.TimeEntity
 import com.sopt.presentation.R
 import kotlinx.coroutines.delay
@@ -130,7 +123,6 @@ fun AppointmentCheckRoute(
         onCheckedChange = {
             isChecked = it
             if (isChecked) selectedData = emptyList()
-            Timber.d("isChecked: $isChecked selectedData: $selectedData")
         },
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
