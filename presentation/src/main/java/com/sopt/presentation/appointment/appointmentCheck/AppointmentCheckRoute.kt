@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
 import com.sopt.core.designsystem.component.checkbox.CircularCheckbox
+import com.sopt.core.designsystem.component.checkbox.NoostakCheckbox
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
 import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
@@ -234,36 +236,16 @@ fun AppointmentCheckScreen(
                     style = NoostakTheme.typography.h4Bold,
                     textAlign = TextAlign.Start
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .border(
-                            width = 0.5.dp,
-                            color = NoostakTheme.colors.gray200,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .background(
-                            color = if (isChecked) NoostakTheme.colors.gray50 else NoostakTheme.colors.white,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .noRippleClickable { onCheckedChange(!isChecked) }
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.cb_appointment_check_impossible),
-                        modifier = Modifier.weight(1f),
-                        style = NoostakTheme.typography.b5Regular,
-                        color = NoostakTheme.colors.gray900
-                    )
-                    CircularCheckbox(
-                        isChecked = isChecked,
-                        onCheckedChange = {
-                            onCheckedChange(it)
-                        }
-                    )
-                }
+                NoostakCheckbox(
+                    text = stringResource(R.string.cb_appointment_check_impossible),
+                    isChecked = isChecked,
+                    onCheckedChange = {
+                        onCheckedChange(it)
+                    },
+                    textStyle = NoostakTheme.typography.b5Regular,
+                    borderColor = NoostakTheme.colors.gray200,
+                    paddingValues = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 NoostakEditableTimeTable(
                     availablePeriods = availablePeriods,
