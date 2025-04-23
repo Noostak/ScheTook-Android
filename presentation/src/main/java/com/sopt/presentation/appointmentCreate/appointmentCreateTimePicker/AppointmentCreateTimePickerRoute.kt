@@ -252,7 +252,7 @@ fun AppointmentCreateTimePickerScreen(
                         null
                     } else {
                         "${
-                            selectedStartHour?.toString()?.padStart(2, '0')
+                        selectedStartHour?.toString()?.padStart(2, '0')
                         }:00 ~ ${adjustedEndHour.toString().padStart(2, '0')}:00"
                     }
                     onButtonClick(
