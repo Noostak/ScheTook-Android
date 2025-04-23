@@ -74,7 +74,11 @@ class AppointmentCheckViewModel @Inject constructor(
         }
     }
 
-    fun isSelectedDataValid(duration: Long, selectedDate: List<TimeEntity>): Boolean {
+    fun isSelectedDataValid(duration: Long, selectedDate: List<TimeEntity>, isChecked: Boolean): Boolean {
+        if (isChecked) {
+            return true
+        }
+
         if (selectedDate.isEmpty()) {
             emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
             return false

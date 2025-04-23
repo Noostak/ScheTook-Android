@@ -3,13 +3,20 @@ package com.sopt.presentation.appointment.appointmentCheck
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -34,6 +41,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
+import com.sopt.core.designsystem.component.checkbox.CircularCheckbox
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
 import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
@@ -41,6 +49,7 @@ import com.sopt.core.designsystem.component.timetable.NoostakEditableTimeTable
 import com.sopt.core.designsystem.component.topappbar.NoostakTopAppBar
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
+import com.sopt.core.extension.noRippleClickable
 import com.sopt.domain.entity.TimeEntity
 import com.sopt.presentation.R
 import kotlinx.coroutines.delay
@@ -62,6 +71,7 @@ fun AppointmentCheckRoute(
     val context = LocalContext.current
     val showErrorDialog by appointmentCheckViewModel.showErrorDialog.collectAsStateWithLifecycle()
     var selectedData by remember { mutableStateOf(emptyList<TimeEntity>()) }
+    var isChecked by remember { mutableStateOf(false) }
     val rememberedAvailablePeriods = remember { availablePeriods }
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -109,11 +119,25 @@ fun AppointmentCheckRoute(
         groupId = groupId,
         appointmentName = appointmentName,
         availablePeriods = rememberedAvailablePeriods,
-        onSelectedDataChange = { selectedData = it },
+        onSelectedDataChange = {
+            selectedData = it
+            if (it.isNotEmpty()) isChecked = false
+        },
         duration = duration,
+        isChecked = isChecked,
+        onCheckedChange = {
+            isChecked = it
+            if (isChecked) selectedData = emptyList()
+            Timber.d("isChecked: $isChecked selectedData: $selectedData")
+        },
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
-            if (appointmentCheckViewModel.isSelectedDataValid(duration/60, selectedData)) {
+            if (appointmentCheckViewModel.isSelectedDataValid(
+                    duration / 60,
+                    selectedData,
+                    isChecked
+                )
+            ) {
                 appointmentCheckViewModel.postTimeTable(
                     groupId,
                     appointmentId,
@@ -152,6 +176,8 @@ fun AppointmentCheckScreen(
     availablePeriods: List<TimeEntity>,
     onSelectedDataChange: (List<TimeEntity>) -> Unit = {},
     duration: Long,
+    isChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {},
     onBackButtonClick: (Long) -> Unit,
     onConfirmButtonClick: () -> Unit,
     snackBarHostState: SnackbarHostState,
@@ -202,22 +228,47 @@ fun AppointmentCheckScreen(
             ) {
                 Text(
                     modifier = Modifier
-                        .padding(top = 11.dp, start = 6.dp),
-                    text = stringResource(R.string.title_appointment_check, duration/60),
+                        .padding(vertical = 12.dp),
+                    text = stringResource(R.string.title_appointment_check, duration / 60),
                     color = NoostakTheme.colors.black,
                     style = NoostakTheme.typography.h4Bold,
                     textAlign = TextAlign.Start
                 )
-                Text(
-                    modifier = Modifier.padding(start = 6.dp, bottom = 16.dp),
-                    text = "어렵다면 '가능한 시간이 없어요'를 선택해주세요",
-                    color = NoostakTheme.colors.gray900,
-                    style = NoostakTheme.typography.c3Regular,
-                    textAlign = TextAlign.Start
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .border(
+                            width = 0.5.dp,
+                            color = NoostakTheme.colors.gray200,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .background(
+                            color = if (isChecked) NoostakTheme.colors.gray50 else NoostakTheme.colors.white,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .noRippleClickable { onCheckedChange(!isChecked) }
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.cb_appointment_check_impossible),
+                        modifier = Modifier.weight(1f),
+                        style = NoostakTheme.typography.b5Regular,
+                        color = NoostakTheme.colors.gray900
+                    )
+                    CircularCheckbox(
+                        isChecked = isChecked,
+                        onCheckedChange = {
+                            onCheckedChange(it)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 NoostakEditableTimeTable(
                     availablePeriods = availablePeriods,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isChecked = isChecked
                 ) {
                     onSelectedDataChange(it)
                     Timber.d("selectedData: $it")

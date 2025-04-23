@@ -35,6 +35,7 @@ import com.sopt.domain.entity.TimeEntity
 fun NoostakEditableTimeTable(
     availablePeriods: List<TimeEntity>,
     modifier: Modifier = Modifier,
+    isChecked: Boolean = false,
     onSelectedTimesChanged: (List<TimeEntity>) -> Unit
 ) {
     val days = availablePeriods.size
@@ -43,7 +44,7 @@ fun NoostakEditableTimeTable(
             availablePeriods.first().startTime,
             availablePeriods.first().endTime
         )
-    val selectedCells = remember { mutableStateListOf<Pair<Int, Int>>() }
+    val selectedCells = remember(key1 = isChecked) { mutableStateListOf<Pair<Int, Int>>() }
 
     LazyColumn(
         modifier = modifier
