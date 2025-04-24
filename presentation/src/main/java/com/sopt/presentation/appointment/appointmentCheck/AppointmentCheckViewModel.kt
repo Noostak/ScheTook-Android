@@ -34,9 +34,10 @@ class AppointmentCheckViewModel @Inject constructor(
         appointmentName: String,
         availableTimes: List<TimeEntity>
     ) {
+        val sortedAvailableTimes = availableTimes.sortedBy { it.startTime }
         viewModelScope.launch {
             _postTimeTableState.emit(UiState.Loading)
-            appointmentConfirmRepository.postTimeTable(appointmentId, availableTimes).fold(
+            appointmentConfirmRepository.postTimeTable(appointmentId, sortedAvailableTimes).fold(
                 onSuccess = {
                     _postTimeTableState.emit(UiState.Success(it))
                     emitSideEffect(
@@ -74,7 +75,11 @@ class AppointmentCheckViewModel @Inject constructor(
         }
     }
 
-    fun isSelectedDataValid(duration: Long, selectedDate: List<TimeEntity>, isChecked: Boolean): Boolean {
+    fun isSelectedDataValid(
+        duration: Long,
+        selectedDate: List<TimeEntity>,
+        isChecked: Boolean
+    ): Boolean {
         if (isChecked) {
             return true
         }
