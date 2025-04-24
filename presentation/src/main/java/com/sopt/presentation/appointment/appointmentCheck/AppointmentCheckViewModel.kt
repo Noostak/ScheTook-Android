@@ -6,6 +6,7 @@ import com.sopt.core.type.DialogType
 import com.sopt.core.util.BaseViewModel
 import com.sopt.domain.entity.TimeEntity
 import com.sopt.domain.repository.AppointmentConfirmRepository
+import com.sopt.presentation.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.Duration
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,22 +74,52 @@ class AppointmentCheckViewModel @Inject constructor(
         }
     }
 
+    fun isSelectedDataValid(duration: Long, selectedDate: List<TimeEntity>, isChecked: Boolean): Boolean {
+        if (isChecked) {
+            return true
+        }
+
+        if (selectedDate.isEmpty()) {
+            emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
+            return false
+        }
+
+        val sorted = selectedDate.sortedBy { LocalDateTime.parse(it.startTime) }
+        var currentStart = LocalDateTime.parse(sorted.first().startTime)
+        var currentEnd = LocalDateTime.parse(sorted.first().endTime)
+
+        for (i in 1 until sorted.size) {
+            val nextStart = LocalDateTime.parse(sorted[i].startTime)
+            val nextEnd = LocalDateTime.parse(sorted[i].endTime)
+
+            if (nextStart == currentEnd) {
+                currentEnd = nextEnd
+            } else {
+                // 블록이 끊기면 검사
+                val blockDuration = Duration.between(currentStart, currentEnd).toHours()
+                if (blockDuration < duration) {
+                    emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
+                    return false
+                }
+                currentStart = nextStart
+                currentEnd = nextEnd
+            }
+        }
+        val finalBlockDuration = Duration.between(currentStart, currentEnd).toHours()
+        if (finalBlockDuration < duration) {
+            emitSideEffect(AppointmentCheckSideEffect.ShowSnackBar(R.string.sb_appointment_check_invalid))
+            return false
+        }
+
+        return true
+    }
+
     fun showErrorDialog(show: Boolean, dialogType: DialogType) {
         _showErrorDialog.update { it.copy(first = show, second = dialogType) }
     }
 
     fun navigateUp() {
         emitSideEffect(AppointmentCheckSideEffect.NavigateUp)
-    }
-
-    fun navigateToAppointment(groupId: Long, appointmentId: Long, appointmentName: String) {
-        emitSideEffect(
-            AppointmentCheckSideEffect.NavigateToAppointment(
-                groupId,
-                appointmentId,
-                appointmentName
-            )
-        )
     }
 
     fun navigateToGroupDetail(groupId: Long) {

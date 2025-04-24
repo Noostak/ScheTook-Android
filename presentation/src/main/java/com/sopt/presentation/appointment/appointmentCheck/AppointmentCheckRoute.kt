@@ -5,8 +5,11 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,6 +37,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
+import com.sopt.core.designsystem.component.checkbox.NoostakCheckbox
 import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
 import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
@@ -62,6 +66,7 @@ fun AppointmentCheckRoute(
     val context = LocalContext.current
     val showErrorDialog by appointmentCheckViewModel.showErrorDialog.collectAsStateWithLifecycle()
     var selectedData by remember { mutableStateOf(emptyList<TimeEntity>()) }
+    var isChecked by remember { mutableStateOf(false) }
     val rememberedAvailablePeriods = remember { availablePeriods }
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -99,7 +104,7 @@ fun AppointmentCheckRoute(
                 )
 
                 is AppointmentCheckSideEffect.ShowSnackBar -> onShowFailureSnackBar(
-                    context.getString(sideEffect.message)
+                    context.getString(sideEffect.message, duration / 60)
                 )
             }
         }
@@ -109,16 +114,31 @@ fun AppointmentCheckRoute(
         groupId = groupId,
         appointmentName = appointmentName,
         availablePeriods = rememberedAvailablePeriods,
-        onSelectedDataChange = { selectedData = it },
+        onSelectedDataChange = {
+            selectedData = it
+            if (it.isNotEmpty()) isChecked = false
+        },
+        duration = duration,
+        isChecked = isChecked,
+        onCheckedChange = {
+            isChecked = it
+            if (isChecked) selectedData = emptyList()
+        },
         onBackButtonClick = appointmentCheckViewModel::navigateToGroupDetail,
         onConfirmButtonClick = {
-            // TODO: selectedData가 duration 이하인지 체크하는 로직 추가
-            appointmentCheckViewModel.postTimeTable(
-                groupId,
-                appointmentId,
-                appointmentName,
-                selectedData
-            )
+            if (appointmentCheckViewModel.isSelectedDataValid(
+                    duration / 60,
+                    selectedData,
+                    isChecked
+                )
+            ) {
+                appointmentCheckViewModel.postTimeTable(
+                    groupId,
+                    appointmentId,
+                    appointmentName,
+                    selectedData
+                )
+            }
         },
         snackBarHostState = snackBarHostState,
         snackBarVisible = snackBarVisible
@@ -149,6 +169,9 @@ fun AppointmentCheckScreen(
     appointmentName: String,
     availablePeriods: List<TimeEntity>,
     onSelectedDataChange: (List<TimeEntity>) -> Unit = {},
+    duration: Long,
+    isChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {},
     onBackButtonClick: (Long) -> Unit,
     onConfirmButtonClick: () -> Unit,
     snackBarHostState: SnackbarHostState,
@@ -199,15 +222,27 @@ fun AppointmentCheckScreen(
             ) {
                 Text(
                     modifier = Modifier
-                        .padding(top = 11.dp, start = 6.dp, bottom = 16.dp),
-                    text = stringResource(R.string.title_appointment_check),
+                        .padding(vertical = 12.dp),
+                    text = stringResource(R.string.title_appointment_check, duration / 60),
                     color = NoostakTheme.colors.black,
                     style = NoostakTheme.typography.h4Bold,
                     textAlign = TextAlign.Start
                 )
+                NoostakCheckbox(
+                    text = stringResource(R.string.cb_appointment_check_impossible),
+                    isChecked = isChecked,
+                    onCheckedChange = {
+                        onCheckedChange(it)
+                    },
+                    textStyle = NoostakTheme.typography.b5Regular,
+                    borderColor = NoostakTheme.colors.gray200,
+                    paddingValues = PaddingValues(horizontal = 12.dp, vertical = 14.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 NoostakEditableTimeTable(
                     availablePeriods = availablePeriods,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isChecked = isChecked
                 ) {
                     onSelectedDataChange(it)
                     Timber.d("selectedData: $it")
@@ -251,6 +286,7 @@ fun PreviewAppointmentConfirmScreen() {
                     endTime = "2024-09-07T18:00:00"
                 )
             ),
+            duration = 360,
             onBackButtonClick = {},
             onConfirmButtonClick = {},
             snackBarHostState = SnackbarHostState(),

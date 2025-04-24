@@ -89,7 +89,7 @@
     <string name="header_appointment_available">가능한 친구 %1$s</string>
     <string name="header_appointment_unavailable">불가능한 친구 %1$s</string>
     <string name="btn_appointment_confirm">약속 확정하기</string>
-    <string name="title_appointment_check">가능한 시간을\n모두 선택해주세요</string>
+    <string name="title_appointment_check">%1$d시간 이상\n가능한 시간대를 모두 선택해주세요</string>
     <string name="btn_appointment_check">확인</string>
     <string name="appointment_check_failure">시간 입력에 실패했어요</string>
     <string name="header_appointment_recommendation">추천 시간</string>
@@ -167,6 +167,10 @@
     <string name="btn_appointment_submit_complete">확인</string>
     <string name="text_appointment_submit_complete_date_consecutive">%1$s ~ %2$s</string>
     <string name="text_appointment_submit_complete_separator">", "</string>
+
+    <!-- 약속 시간 입력 -->
+    <string name="sb_appointment_check_invalid">%1$d시간 이상 연속으로 선택해주세요</string>
+    <string name="cb_appointment_check_impossible">연속 가능한 시간이 없어요</string>
 
     <!-- 날짜 형식 -->
     <string name="text_brace_between_hours">%1$s ~ %2$s</string>
