@@ -60,18 +60,18 @@ class LoginViewModel @Inject constructor(
 
     // Kakao Login
     fun kakaoLogin(context: Context) {
-        val loginCallback: (OAuthToken?, Throwable?) -> Unit = this::handleKakaoLoginResult
+        val loginCallback: (OAuthToken?) -> Unit = this::handleKakaoLoginResult
 
         with(UserApiClient.instance) {
             if (isKakaoTalkLoginAvailable(context)) {
-                loginWithKakaoTalk(context, callback = loginCallback)
+                loginWithKakaoTalk(context) { token, _ -> loginCallback(token) }
             } else {
-                loginWithKakaoAccount(context, callback = loginCallback)
+                loginWithKakaoAccount(context) { token, _ -> loginCallback(token) }
             }
         }
     }
 
-    private fun handleKakaoLoginResult(token: OAuthToken?, error: Throwable?) {
+    private fun handleKakaoLoginResult(token: OAuthToken?) {
         viewModelScope.launch {
             token?.let {
                 postSocialLogin(
