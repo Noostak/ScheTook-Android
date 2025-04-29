@@ -3,6 +3,7 @@ package com.sopt.presentation.auth.signup
 import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import com.sopt.core.state.UiState
 import com.sopt.core.util.BaseViewModel
 import com.sopt.domain.entity.AuthEntity
 import com.sopt.domain.repository.UserInfoRepository
@@ -17,7 +18,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -33,6 +33,12 @@ class SignUpViewModel @Inject constructor(
 
     private val _profileImage = MutableStateFlow("")
     private val profileImage: StateFlow<String> = _profileImage
+
+    private val _signUpUiState = MutableStateFlow<UiState<Unit>>(UiState.Empty)
+    val signUpUiState: StateFlow<UiState<Unit>> = _signUpUiState.asStateFlow()
+
+    private val _showErrorDialog = MutableStateFlow(false)
+    val showErrorDialog: StateFlow<Boolean> get() = _showErrorDialog
 
     fun onNicknameChanged(nickname: String) {
         _signUpState.update { it.copy(nickname = nickname) }
@@ -69,6 +75,8 @@ class SignUpViewModel @Inject constructor(
 
     fun postSignUp(accessToken: String, socialType: String) {
         viewModelScope.launch {
+            _signUpUiState.emit(UiState.Loading)
+
             val memberName = _signUpState.value.nickname
             val profileImageUri = _signUpState.value.profileImageUri
 
@@ -84,13 +92,19 @@ class SignUpViewModel @Inject constructor(
             ).fold(
                 onSuccess = { authEntity ->
                     saveUserInfo(authEntity, profileImageUri)
+                    _signUpUiState.emit(UiState.Success(Unit))
                     navigateToCheckInvite()
                 },
-                onFailure = { error ->
-                    Timber.e("postSignUp Failed: ${error.message}")
+                onFailure = {
+                    _signUpUiState.emit(UiState.Failure(it.message.orEmpty()))
+                    emitSideEffect(SignUpSideEffect.ShowErrorDialog)
                 }
             )
         }
+    }
+
+    fun showErrorDialog(show: Boolean) {
+        _showErrorDialog.update { show }
     }
 
     private fun navigateToCheckInvite() {
