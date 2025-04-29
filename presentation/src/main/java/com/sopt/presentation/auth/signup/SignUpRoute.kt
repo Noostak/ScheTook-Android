@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.sopt.core.designsystem.component.button.NoostakBottomButton
+import com.sopt.core.designsystem.component.dialog.NoostakDialog
 import com.sopt.core.designsystem.component.image.ProfileImagePicker
 import com.sopt.core.designsystem.component.snackbar.NoostakSnackBar
 import com.sopt.core.designsystem.component.snackbar.SNACK_BAR_DURATION
@@ -46,6 +47,7 @@ import com.sopt.core.designsystem.component.textfield.NoostakTextField
 import com.sopt.core.designsystem.theme.NoostakAndroidTheme
 import com.sopt.core.designsystem.theme.NoostakTheme
 import com.sopt.core.extension.launchImagePicker
+import com.sopt.core.type.DialogType
 import com.sopt.core.type.ImagePickerType
 import com.sopt.core.type.TextFieldType
 import com.sopt.core.util.permission.ImagePickerLaunchers
@@ -66,15 +68,16 @@ fun SignUpRoute(
     val signUpState by signUpViewModel.signUpState.collectAsStateWithLifecycle()
 
     var isGalleryPermission by remember { mutableStateOf(false) }
+    val showErrorDialog by signUpViewModel.showErrorDialog.collectAsStateWithLifecycle()
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     var snackBarVisible by remember { mutableStateOf(false) }
 
-    val onShowPermissionGallerySnackBar: (message: String) -> Unit = {
+    val onShowPermissionGallerySnackBar: (String) -> Unit = { message ->
         coroutineScope.launch {
             snackBarVisible = true
-            val job = launch { snackBarHostState.showSnackbar(message = it) }
+            val job = launch { snackBarHostState.showSnackbar(message) }
             delay(SNACK_BAR_DURATION)
             job.cancel()
             snackBarVisible = false
@@ -108,14 +111,13 @@ fun SignUpRoute(
             .collect { sideEffect ->
                 when (sideEffect) {
                     is SignUpSideEffect.NavigateToCheckInvite -> navigateToCheckInvite(sideEffect.name)
-
-                    is SignUpSideEffect.ShowSnackBar ->
-                        isGalleryPermission =
-                            true
-
+                    is SignUpSideEffect.ShowSnackBar -> isGalleryPermission = true
                     is SignUpSideEffect.RequestImagePicker -> context.launchImagePicker(
                         galleryLauncher,
                         photoPickerLauncher
+                    )
+                    is SignUpSideEffect.ShowErrorDialog -> signUpViewModel.showErrorDialog(
+                        true
                     )
                 }
             }
@@ -124,6 +126,16 @@ fun SignUpRoute(
     if (isGalleryPermission) {
         onShowPermissionGallerySnackBar(context.getString(R.string.sb_permission_gallery))
         isGalleryPermission = false
+    }
+
+    if (showErrorDialog) {
+        NoostakDialog(
+            dialogType = DialogType.NETWORK_FAILURE,
+            onClick = {
+                signUpViewModel.postSignUp(accessToken, socialType)
+            },
+            onDismissRequest = { signUpViewModel.showErrorDialog(false) }
+        )
     }
 
     AnimatedVisibility(
