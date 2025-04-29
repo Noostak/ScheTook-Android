@@ -1,5 +1,7 @@
 package com.sopt.presentation.auth.signup
 
+import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.sopt.core.util.BaseViewModel
 import com.sopt.domain.entity.AuthEntity
@@ -9,7 +11,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -23,11 +24,15 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
-    private val postSignUpUseCase: PostSignUpUseCase
+    private val postSignUpUseCase: PostSignUpUseCase,
+    private val application: Application
 ) : BaseViewModel<SignUpSideEffect>() {
 
     private val _signUpState: MutableStateFlow<SignUpState> = MutableStateFlow(SignUpState())
     val signUpState: StateFlow<SignUpState> get() = _signUpState.asStateFlow()
+
+    private val _profileImage = MutableStateFlow("")
+    private val profileImage: StateFlow<String> = _profileImage
 
     fun onNicknameChanged(nickname: String) {
         _signUpState.update { it.copy(nickname = nickname) }
@@ -52,14 +57,39 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    fun isGalleryPermissionGranted(): Boolean {
-        return _signUpState.value.isPermissionGranted
-    }
+    fun isGalleryPermissionGranted(): Boolean = _signUpState.value.isPermissionGranted
 
     fun updateProfileImage(imageUri: String?) {
-        executeInScope {
+        viewModelScope.launch {
             _signUpState.update { it.copy(profileImageUri = imageUri) }
+            imageUri?.let { _profileImage.value = it }
             imageUri?.let { userInfoRepository.saveProfileImage(it) }
+        }
+    }
+
+    fun postSignUp(accessToken: String, socialType: String) {
+        viewModelScope.launch {
+            val memberName = _signUpState.value.nickname
+            val profileImageUri = _signUpState.value.profileImageUri
+
+            val memberProfileImage = profileImageUri?.let { uriToMultipartBody(it) }
+            val nameRequestBody = memberName.toRequestBody("text/plain".toMediaTypeOrNull())
+            val authTypeRequestBody = socialType.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            postSignUpUseCase(
+                accessToken = accessToken,
+                memberName = nameRequestBody,
+                memberProfileImage = memberProfileImage,
+                authType = authTypeRequestBody
+            ).fold(
+                onSuccess = { authEntity ->
+                    saveUserInfo(authEntity, profileImageUri)
+                    navigateToCheckInvite()
+                },
+                onFailure = { error ->
+                    Timber.e("postSignUp Failed: ${error.message}")
+                }
+            )
         }
     }
 
@@ -76,63 +106,36 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun saveUserNickname(nickname: String) {
-        executeInScope {
+        viewModelScope.launch {
             userInfoRepository.saveNickname(nickname)
         }
     }
 
-    private fun executeInScope(block: suspend () -> Unit) {
-        viewModelScope.launch { block() }
-    }
-
-    fun postSignUp(
-        accessToken: String,
-        socialType: String
-    ) {
-        viewModelScope.launch {
-            val memberName = _signUpState.value.nickname
-            val profileImageUri = userInfoRepository.getProfileImage().firstOrNull()
-
-            val memberProfileImage = profileImageUri?.let { uri ->
-                uriToMultipartBody(uri)
-            }
-
-            val nameRequestBody = memberName.toRequestBody("text/plain".toMediaTypeOrNull())
-            val authTypeRequestBody = socialType.toRequestBody("text/plain".toMediaTypeOrNull())
-
-            postSignUpUseCase(
-                accessToken = accessToken,
-                memberName = nameRequestBody,
-                memberProfileImage = memberProfileImage,
-                authType = authTypeRequestBody
-            ).fold(
-                onSuccess = { authEntity ->
-                    saveUserInfo(authEntity)
-                    navigateToCheckInvite()
-                },
-                onFailure = { error ->
-                    Timber.e("postSignUp Failed: ${error.message}")
-                }
-            )
-        }
-    }
-
-    private fun uriToMultipartBody(filePath: String): MultipartBody.Part? {
-        val file = File(filePath)
-        return if (file.exists()) {
-            val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("memberProfileImage", file.name, requestBody)
-        } else {
-            null
-        }
-    }
-
-    private fun saveUserInfo(authEntity: AuthEntity) {
+    private fun saveUserInfo(authEntity: AuthEntity, profileImageUri: String?) {
         viewModelScope.launch {
             userInfoRepository.saveAccessToken("Bearer ${authEntity.accessToken}")
             userInfoRepository.saveRefreshToken("Bearer ${authEntity.refreshToken}")
             userInfoRepository.saveMemberId(authEntity.memberId)
             userInfoRepository.saveIsAutoLogin(true)
+            profileImageUri?.let { userInfoRepository.saveProfileImage(it) }
+        }
+    }
+
+    private fun uriToMultipartBody(uriString: String): MultipartBody.Part? {
+        return try {
+            val contentResolver = application.contentResolver
+            val uri = Uri.parse(uriString)
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+
+            val tempFile = File.createTempFile("upload", ".jpg", application.cacheDir)
+            tempFile.outputStream().use { output ->
+                inputStream.copyTo(output)
+            }
+
+            val requestBody = tempFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+            MultipartBody.Part.createFormData("memberProfileImage", tempFile.name, requestBody)
+        } catch (e: Exception) {
+            null
         }
     }
 }
