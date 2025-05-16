@@ -1,5 +1,5 @@
 # ScheTook <img src="https://avatars.githubusercontent.com/u/183745605?s=200&v=4" width="110" align="left"/>
-그룹 내 일정 조율 서비스
+모두가 가능한 시간을 추천받고 약속을 한눈에 확인하자!
 
 <br />
 <br />
