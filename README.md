@@ -4,7 +4,7 @@
 <br />
 <br />
 
-## 🥄 ScheTook!
+## 📅 ScheTook [👉플레이 스토어 바로가기](https://play.google.com/store/apps/details?id=com.sopt.noostak)
 💙 스케툭(ScheTook)은 팀원들의 가능한 시간을 모아 가장 많은 인원이 참석할 수 있는 최적의 일정을 자동으로 추천하는 서비스입니다. 💙
 <br />
 <br />
