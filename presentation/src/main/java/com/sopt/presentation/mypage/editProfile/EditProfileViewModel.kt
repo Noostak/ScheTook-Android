@@ -9,7 +9,6 @@ import com.sopt.domain.repository.UserInfoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,16 +33,16 @@ class EditProfileViewModel @Inject constructor(
     private val _showErrorDialog = MutableStateFlow(false)
     val showErrorDialog: StateFlow<Boolean> get() = _showErrorDialog
 
-    suspend fun initProfile() {
-        userInfoRepository.getNickname().first().also {
-            _nickname.value = it
-            onMemberNameChanged(it)
+    fun setInitialProfile(memberName: String, memberProfileImage: String?) {
+        _nickname.value = memberName
+        _profileImage.value = memberProfileImage ?: ""
+        _userProfileState.update {
+            it.copy(
+                memberName = memberName,
+                memberProfileImage = memberProfileImage
+            )
         }
-
-        userInfoRepository.getProfileImage().first().also {
-            _profileImage.value = it
-            onImageSelected(it)
-        }
+        validateMemberName(memberName)
     }
 
     private suspend fun saveProfile(memberName: String, memberProfileImage: String?) {

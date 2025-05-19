@@ -107,7 +107,7 @@ fun EditProfileRoute(
     var isInitialized by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        editProfileViewModel.initProfile()
+        editProfileViewModel.setInitialProfile(nickname, profileImage)
         isInitialized = true
     }
 
