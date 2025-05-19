@@ -6,13 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -74,7 +78,8 @@ fun OnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(NoostakTheme.colors.white),
+            .background(NoostakTheme.colors.white)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -87,10 +92,13 @@ fun OnboardingScreen(
                 verticalArrangement = Arrangement.Top
             ) {
                 Image(
-                    modifier = Modifier.fillMaxWidth(),
                     imageVector = ImageVector.vectorResource(id = pages[page].imageRes),
                     contentDescription = null,
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(NoostakTheme.colors.gray100)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
                 )
                 Text(
                     modifier = Modifier.padding(top = 30.dp),
@@ -113,7 +121,9 @@ fun OnboardingScreen(
             }
         }
         Row(
-            Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
+                .padding(bottom = 26.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
             repeat(pagerState.pageCount) { iteration ->
                 val color =
@@ -127,6 +137,7 @@ fun OnboardingScreen(
                 )
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
 
         val isLastPage = pagerState.currentPage == pages.size - 1
         val buttonText =
